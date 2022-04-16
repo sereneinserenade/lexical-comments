@@ -1,7 +1,21 @@
-import { TextNode, NodeKey, EditorConfig, LexicalNode, LexicalCommand, $getSelection, createCommand, $setSelection, $isElementNode, ElementNode, DOMConversionMap, DOMConversionOutput, RangeSelection } from 'lexical'
+import {
+  NodeKey,
+  EditorConfig,
+  LexicalNode,
+  $isElementNode,
+  ElementNode,
+  DOMConversionMap,
+  DOMConversionOutput,
+  RangeSelection,
+  CommandListenerEditorPriority,
+  LexicalCommand,
+  createCommand,
+  $getSelection,
+  $setSelection
+} from 'lexical'
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext'
 import { addClassNamesToElement } from '@lexical/utils'
-import { useEffect } from 'react';
+import { useEffect } from 'react'
 
 export interface Comment {
   userName: string,
@@ -18,7 +32,7 @@ class CommentNode extends ElementNode {
   __commentInstance: CommentInstance;
 
   static getType(): string {
-    return 'link';
+    return 'comment';
   }
 
   static clone(node: CommentNode): CommentNode {
@@ -35,7 +49,7 @@ class CommentNode extends ElementNode {
 
     element.setAttribute('data-comment-instance', JSON.stringify(this.__commentInstance))
 
-    addClassNamesToElement(element, config.theme.link);
+    addClassNamesToElement(element, config.theme.comment as string);
 
     return element;
   }
@@ -43,7 +57,7 @@ class CommentNode extends ElementNode {
   updateDOM<EditorContext>(prevNode: CommentNode, dom: HTMLElement, config: EditorConfig<EditorContext>): boolean {
     const commentSpan: HTMLSpanElement = dom;
 
-    const [prevInstance, currentInstance]= [JSON.stringify(prevNode.__commentInstance), JSON.stringify(this.__commentInstance)]
+    const [prevInstance, currentInstance] = [JSON.stringify(prevNode.__commentInstance), JSON.stringify(this.__commentInstance)]
 
     if (prevInstance !== currentInstance) commentSpan.setAttribute('data-comment-instance', currentInstance)
 
@@ -52,7 +66,7 @@ class CommentNode extends ElementNode {
 
   static importDOM(): DOMConversionMap | null {
     return {
-      a: (node: Node) => ({
+      span: (node: Node) => ({
         conversion: convertCommentSpan,
         priority: 1,
       }),
@@ -113,17 +127,141 @@ function convertCommentSpan(domNode: Node): DOMConversionOutput {
     }
   }
 
-  return {node};
+  return { node };
 }
 
-export function $createCommentNode(commentInstance: CommentInstance): CommentNode {
+function $createCommentNode(commentInstance: CommentInstance): CommentNode {
   return new CommentNode(commentInstance);
 }
 
-export function $isCommentNode(node: LexicalNode): boolean {
+function $isCommentNode(node: LexicalNode): boolean {
   return node instanceof CommentNode;
 }
 
+const SET_COMMENT_COMMAND: LexicalCommand<CommentInstance | null> = createCommand();
+
+const EditorPriority: CommandListenerEditorPriority = 0;
+
+
+function setComment(commentInstance: CommentInstance | null) {
+  const selection = $getSelection();
+
+  if (selection !== null) $setSelection(selection)
+
+  const sel = $getSelection();
+
+  if (sel !== null) {
+    const nodes = sel.extract();
+    if (commentInstance === null) {
+      // Remove CommentNodes
+      nodes.forEach((node) => {
+        const parent = node.getParent();
+
+        if (parent && $isCommentNode(parent)) {
+          const children = parent.getChildren();
+
+          for (let i = 0; i < children.length; i += 1) parent.insertBefore(children[i])
+
+          parent.remove();
+        }
+      });
+    } else {
+      // Add or merge CommentNodes
+      if (nodes.length === 1) {
+        const firstNode = nodes[0];
+
+        // if the first node is a CommentNode or if its
+        // parent is a CommentNode, we update the commentInstance.
+
+        if ($isCommentNode(firstNode)) {
+          (firstNode as CommentNode).setComment(commentInstance);
+          return;
+        } else {
+          const parent = firstNode.getParent();
+
+          if (parent && $isCommentNode(parent)) {
+            // set parent to be the current CommentNode
+            // so that other nodes in the same parent
+            // aren't handled separately below.
+            (parent as CommentNode).setComment(commentInstance);
+            return;
+          }
+        }
+      }
+
+      let prevParent: any = null;
+
+      let commentNode: any = null;
+
+      nodes.forEach((node) => {
+        const parent = node.getParent();
+        if (
+          parent === commentNode ||
+          parent === null ||
+          ($isElementNode(node) && !(node as ElementNode).isInline())
+        ) {
+          return;
+        }
+        if (!parent.is(prevParent)) {
+          prevParent = parent;
+          commentNode = $createCommentNode(commentInstance);
+
+          if ($isCommentNode(parent)) {
+            if (node.getPreviousSibling() === null) {
+              parent.insertBefore(commentNode);
+            } else {
+              parent.insertAfter(commentNode);
+            }
+          } else {
+            node.insertBefore(commentNode);
+          }
+        }
+        if ($isCommentNode(node)) {
+          if (commentNode !== null) {
+            const children = (node as CommentNode).getChildren();
+
+            for (let i = 0; i < children.length; i++) commentNode.append(children[i])
+          }
+
+          node.remove();
+          return;
+        }
+        if (commentNode !== null) {
+          commentNode.append(node);
+        }
+      });
+    }
+  }
+}
+
+export default function CommentPlugin(): null {
+  const [editor] = useLexicalComposerContext();
+
+  useEffect(() => {
+    if (!editor.hasNodes([CommentNode])) {
+      throw new Error('CommentPlugin: CommentNode not registered on editor');
+    }
+  }, [editor]);
+
+  useEffect(() => {
+    return editor.registerCommand(
+      SET_COMMENT_COMMAND,
+      (payload: CommentInstance) => {
+        setComment(payload);
+        return true;
+      },
+      EditorPriority,
+    );
+  }, [editor]);
+
+  return null;
+}
+
+
 export {
   CommentNode,
+  $createCommentNode,
+  $isCommentNode,
+
+  SET_COMMENT_COMMAND,
 }
