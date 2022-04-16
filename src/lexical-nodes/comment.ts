@@ -19,7 +19,7 @@ import { useEffect } from 'react'
 
 export interface Comment {
   userName: string,
-  time: Date,
+  time: number,
   content: string,
 }
 

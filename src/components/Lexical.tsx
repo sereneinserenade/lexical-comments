@@ -1,8 +1,10 @@
-import { useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Button } from '@nextui-org/react'
 import { v4 as uuidv4 } from 'uuid'
+import { FiMessageCircle } from 'react-icons/fi'
 
-import { $getRoot, $getSelection, EditorState } from 'lexical';
+import { $getRoot, $getSelection, $isRangeSelection, CommandListenerLowPriority, EditorState, SELECTION_CHANGE_COMMAND, RangeSelection, TextNode, ElementNode } from 'lexical';
+import { $isAtNodeEnd } from "@lexical/selection"
 
 import LexicalComposer from '@lexical/react/LexicalComposer';
 import LexicalPlainTextPlugin from '@lexical/react/LexicalPlainTextPlugin';
@@ -13,8 +15,12 @@ import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext
 
 import './styles/Lexical.scss'
 import { CommentInstance, CommentNode, SET_COMMENT_COMMAND } from '../lexical-nodes';
-import CommentPlugin from '../lexical-nodes/comment';
+import CommentPlugin, { $isCommentNode } from '../lexical-nodes/comment';
 import { initialEditorState } from '../mocks'
+import { useRecoilState, useSetRecoilState } from 'recoil';
+import { activeCommentState, allCommentInstancesState } from '../store/commentStore';
+
+const LowPriority: CommandListenerLowPriority = 1;
 
 const theme = {
   // Theme styling goes here
@@ -30,7 +36,7 @@ function onChange(editorState: EditorState) {
     const selection = $getSelection();
 
     // console.log(root, selection, JSON.stringify(editorState));
-    console.log(JSON.stringify(editorState));
+    // console.log(JSON.stringify(editorState));
   });
 }
 
@@ -60,8 +66,84 @@ interface EditorProps {
   className?: string
 }
 
+function getSelectedNode(selection: RangeSelection): TextNode | ElementNode {
+  const anchor = selection.anchor;
+  const focus = selection.focus;
+  const anchorNode = selection.anchor.getNode();
+  const focusNode = selection.focus.getNode();
+  if (anchorNode === focusNode) {
+    return anchorNode;
+  }
+  const isBackward = selection.isBackward();
+  if (isBackward) {
+    return $isAtNodeEnd(focus) ? anchorNode : focusNode;
+  } else {
+    return $isAtNodeEnd(anchor) ? focusNode : anchorNode;
+  }
+}
+
+
 const DummyCommentPlugin: React.FC = () => {
   const [editor] = useLexicalComposerContext()
+
+  const [isComment, setIsComment] = useState<boolean>(false)
+
+  const setActiveCommentInstanceUuid = useSetRecoilState(activeCommentState)
+
+  const setAllCommentInstances = useSetRecoilState(allCommentInstancesState)
+
+  const setActiveStates = useCallback(() => {
+    editor.update(() => {
+      const state = editor.getEditorState()
+
+      state.read(() => {
+        const commentInstances: CommentInstance[] = []
+
+        state._nodeMap.forEach((node, key, map) => {
+          node.__type === CommentNode.getType()
+
+          const commentInstance = (node as CommentNode).__commentInstance || {}
+
+          if (commentInstance.uuid) commentInstances.push(commentInstance)
+        })
+
+        setAllCommentInstances(commentInstances)
+      })
+
+      const selection = $getSelection()
+
+      if ($isRangeSelection(selection)) {
+        const node = getSelectedNode(selection as RangeSelection)
+
+        const parent = node.getParent()
+
+        let commentNode: CommentNode | undefined
+
+        if ($isCommentNode(node)) commentNode = node as CommentNode
+        else if (parent && $isCommentNode(parent)) commentNode = parent as CommentNode
+
+        if (commentNode) {
+          setIsComment(true)
+          const activeCommentInstanceUuid = commentNode.__commentInstance.uuid
+          setActiveCommentInstanceUuid(activeCommentInstanceUuid)
+        } else {
+          setIsComment(false)
+          setActiveCommentInstanceUuid("")
+        }
+      }
+    })
+  }, [editor])
+
+  useEffect(() => {
+    return editor.registerCommand(
+      SELECTION_CHANGE_COMMAND,
+      (_payload, e) => {
+        setActiveStates()
+        return false
+      },
+      LowPriority
+    )
+  })
 
   const setDummyComment = () => {
     const dummyCommentInstance: CommentInstance = {
@@ -69,7 +151,7 @@ const DummyCommentPlugin: React.FC = () => {
       comments: [
         {
           content: "First Comment",
-          time: new Date(),
+          time: Date.now(),
           userName: 'sereneinserenade'
         }
       ]
@@ -79,10 +161,12 @@ const DummyCommentPlugin: React.FC = () => {
   }
 
   return (
-    <section className='toolbar'>
-      <Button bordered color="secondary" auto onClick={setDummyComment}>
-        Add comment
+    <section className='toolbar flex items-center gap-1rem'>
+      <Button auto color="gradient" rounded bordered={!isComment} onClick={setDummyComment}>
+        <FiMessageCircle />
       </Button>
+
+      {isComment ? "Inside CommentNode 💬" : "Not Inside CommentNode ❌"} 
     </section>
   )
 }
@@ -92,7 +176,6 @@ function Editor({ className }: EditorProps) {
     theme,
     onError,
   };
-
 
   return (
     <section className={(className || "") + " lexical-container"}>

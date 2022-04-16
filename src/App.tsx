@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { NextUIProvider, createTheme, Tooltip } from '@nextui-org/react';
 import { FiSun, FiMoon } from 'react-icons/fi'
+import { RecoilRoot } from 'recoil'
 
 import { Home } from './views'
 
@@ -15,17 +16,19 @@ function App({ }) {
 
   return (
     <NextUIProvider theme={isDark ? darkTheme : lightTheme}>
-      <Home />
+      <RecoilRoot>
+        <Home />
 
-      <section
-        onClick={() => setTheme(!isDark)}
-        className='theme-switcher-section'
-        aria-label='theme-switcher-section'
-      >
-        <Tooltip content={ isDark ? 'Light Theme' : 'Dark Theme'} placement="left">
-          {isDark ? <FiSun /> : <FiMoon />}
-        </Tooltip>
-      </section>
+        <section
+          onClick={() => setTheme(!isDark)}
+          className='theme-switcher-section'
+          aria-label='theme-switcher-section'
+        >
+          <Tooltip content={isDark ? 'Light Theme' : 'Dark Theme'} placement="left">
+            {isDark ? <FiSun /> : <FiMoon />}
+          </Tooltip>
+        </section>
+      </RecoilRoot>
     </NextUIProvider>
   )
 }

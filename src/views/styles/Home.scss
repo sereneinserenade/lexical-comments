@@ -9,15 +9,29 @@
 
   .editor {
     width: 60%;
-    border-top-left-radius: 10px;
-    border-bottom-left-radius: 10px;
+    border-top-left-radius: var(--nextui-radii-sm);
+    border-bottom-left-radius: var(--nextui-radii-sm);
     padding: 1em;
   }
 
   .comments {
     width: 40%;
-    padding: 0 1em;
-    border-top-right-radius: 10px;
-    border-bottom-right-radius: 10px;
+    padding: 1em;
+    border-top-right-radius: var(--nextui-radii-sm);
+    border-bottom-right-radius: var(--nextui-radii-sm);
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+
+    .comment-instance {
+      border-radius: var(--nextui-radii-sm);
+      border: 1px solid var(--nextui-colors-border);
+      padding: 8px;
+      transition: box-shadow 0.2s ease-in-out;
+
+      &.active {
+        box-shadow: var(--nextui-shadows-lg);
+      }
+    }
   }
 }
