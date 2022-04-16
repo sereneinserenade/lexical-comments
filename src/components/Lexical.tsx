@@ -17,8 +17,8 @@ import './styles/Lexical.scss'
 import { CommentInstance, CommentNode, SET_COMMENT_COMMAND } from '../lexical-nodes';
 import CommentPlugin, { $isCommentNode } from '../lexical-nodes/comment';
 import { initialEditorState } from '../mocks'
-import { useRecoilState, useSetRecoilState } from 'recoil';
-import { activeCommentState, allCommentInstancesState } from '../store/commentStore';
+import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
+import { activeCommentState, allCommentInstancesState, lastUpdatedCommentInstanceState } from '../store/commentStore';
 
 const LowPriority: CommandListenerLowPriority = 1;
 
@@ -90,7 +90,38 @@ const DummyCommentPlugin: React.FC = () => {
 
   const setActiveCommentInstanceUuid = useSetRecoilState(activeCommentState)
 
-  const setAllCommentInstances = useSetRecoilState(allCommentInstancesState)
+  const [allCommentInstances, setAllCommentInstances] = useRecoilState(allCommentInstancesState)
+
+  const [lastUpdatedCommentInstanceUuid, setLastUpdatedCommentInstanceUuid] = useRecoilState(lastUpdatedCommentInstanceState)
+
+  const [updatedUuidOnce, setUpdateUuidOnce] = useState(false)
+
+  useEffect(() => {
+    if (lastUpdatedCommentInstanceUuid || !updatedUuidOnce) {
+      setUpdateUuidOnce(true)
+      const lastUpdatedCommentInstance = allCommentInstances.find((i) => i.uuid === lastUpdatedCommentInstanceUuid)
+
+      if (lastUpdatedCommentInstance) {
+        editor.update(() => {
+          const state = editor.getEditorState()
+
+          state.read(() => {
+            state._nodeMap.forEach((node) => {
+              node.__type === CommentNode.getType()
+
+              const commentInstance = (node as CommentNode).__commentInstance || {}
+
+              if (commentInstance.uuid === lastUpdatedCommentInstanceUuid) {
+                (node as CommentNode).setComment(lastUpdatedCommentInstance)
+              }
+            })
+          })
+        })
+      } else {
+        
+      }
+    }
+  }, [lastUpdatedCommentInstanceUuid])
 
   const setActiveStates = useCallback(() => {
     editor.update(() => {
@@ -151,7 +182,7 @@ const DummyCommentPlugin: React.FC = () => {
       comments: [
         {
           content: "First Comment",
-          time: Date.now(),
+          time: `${Date.now()}`,
           userName: 'sereneinserenade'
         }
       ]
@@ -166,7 +197,7 @@ const DummyCommentPlugin: React.FC = () => {
         <FiMessageCircle />
       </Button>
 
-      {isComment ? "Inside CommentNode 💬" : "Not Inside CommentNode ❌"} 
+      {isComment ? "Inside CommentNode 💬" : "Not Inside CommentNode ❌"}
     </section>
   )
 }

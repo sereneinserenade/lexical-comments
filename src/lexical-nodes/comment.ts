@@ -19,13 +19,13 @@ import { useEffect } from 'react'
 
 export interface Comment {
   userName: string,
-  time: number,
+  time: string,
   content: string,
 }
 
 export interface CommentInstance {
   uuid: string
-  comments?: Comment[]
+  comments: Comment[]
 }
 
 class CommentNode extends ElementNode {

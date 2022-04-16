@@ -11,3 +11,8 @@ export const activeCommentState = atom<string | undefined>({
   key: 'activeCommentState',
   default: undefined
 })
+
+export const lastUpdatedCommentInstanceState = atom<string>({
+  key: 'lastUpdatedCommentInstance',
+  default: ""
+})
