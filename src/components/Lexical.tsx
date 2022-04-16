@@ -1,12 +1,14 @@
-import {$getRoot, $getSelection, EditorState} from 'lexical';
-import {useEffect} from 'react';
+import { $getRoot, $getSelection, EditorState } from 'lexical';
+import { useEffect } from 'react';
 
 import LexicalComposer from '@lexical/react/LexicalComposer';
 import LexicalPlainTextPlugin from '@lexical/react/LexicalPlainTextPlugin';
 import LexicalContentEditable from '@lexical/react/LexicalContentEditable';
-import {HistoryPlugin} from '@lexical/react/LexicalHistoryPlugin';
+import { HistoryPlugin } from '@lexical/react/LexicalHistoryPlugin';
 import LexicalOnChangePlugin from '@lexical/react/LexicalOnChangePlugin';
-import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
+import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
+
+import './styles/Lexical.scss'
 
 const theme = {
   // Theme styling goes here
@@ -47,21 +49,34 @@ function onError(error: Error) {
   console.error(error);
 }
 
-function Editor() {
+interface EditorProps {
+  className?: string
+}
+
+function Editor({ className } : EditorProps) {
   const initialConfig = {
     theme,
     onError,
   };
 
   return (
-    <LexicalComposer initialConfig={initialConfig}>
-      <LexicalPlainTextPlugin
-        contentEditable={<LexicalContentEditable />}
-        placeholder={<div>Enter some text...</div>}
-      />
-      <LexicalOnChangePlugin onChange={onChange} />
-      <HistoryPlugin />
-      <MyCustomAutoFocusPlugin />
-    </LexicalComposer>
+    <section className={(className || "") + " lexical-container"}>
+      <LexicalComposer initialConfig={initialConfig}>
+        <LexicalPlainTextPlugin
+          contentEditable={<LexicalContentEditable />}
+          placeholder={<div className='placeholder'>Enter some text...</div>}
+        />
+
+        <LexicalOnChangePlugin onChange={onChange} />
+
+        <HistoryPlugin />
+
+        <MyCustomAutoFocusPlugin />
+      </LexicalComposer>
+    </section>
   );
+}
+
+export {
+  Editor,
 }

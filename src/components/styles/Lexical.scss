@@ -1,0 +1,26 @@
+.lexical-container {
+  position: relative;
+
+  .placeholder {
+    color: #999;
+    overflow: hidden;
+    position: absolute;
+    text-overflow: ellipsis;
+    top: 18px;
+    left: 16px;
+    font-size: 15px;
+    user-select: none;
+    display: inline-block;
+    pointer-events: none;
+  }
+  
+  div[contenteditable="true"] {
+    border-radius: 10px;
+    padding: 0 1em;
+    position: relative;
+
+    &:focus {
+      outline: none !important;
+    }
+  }
+}
