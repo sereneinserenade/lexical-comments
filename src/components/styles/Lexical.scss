@@ -4,11 +4,7 @@
   .placeholder {
     color: #999;
     overflow: hidden;
-    position: absolute;
     text-overflow: ellipsis;
-    top: 18px;
-    left: 16px;
-    font-size: 15px;
     user-select: none;
     display: inline-block;
     pointer-events: none;
@@ -16,11 +12,33 @@
   
   div[contenteditable="true"] {
     border-radius: 10px;
-    padding: 0 1em;
     position: relative;
 
     &:focus {
       outline: none !important;
+    }
+
+    span[data-comment-instance] {
+      // background-color: var(--nextui-colors-yellow300);
+      background-color: rgba(172,255,47,.5);
+      border-radius: 4px;
+      padding: 0 4px;
+      border: 1px solid var(--nextui-colors-success);
+      box-sizing: border-box;
+
+      &::after {
+        content: " 💬";
+      }
+    }
+  }
+}
+
+.dark-theme {
+  .lexical-container {
+    div[contenteditable="true"] {
+      span[data-comment-instance] {
+        // color: var(--nextui-colors-background);
+      }
     }
   }
 }
