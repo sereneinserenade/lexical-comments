@@ -24,14 +24,14 @@
 }
 
 .container {
-  &:before, &:after {
+  &::before, &::after {
     display: table;
     content: " ";
   }
 }
 
 .container-fluid {
-  &:before, &:after {
+  &::before, &::after {
     display: table;
     content: " ";
   }
