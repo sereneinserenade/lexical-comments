@@ -177,7 +177,7 @@ const CommentStatePlugin: React.FC = () => {
 const AddCommentPlugin: React.FC = () => {
   const [editor] = useLexicalComposerContext()
 
-  const [inputContent, setInputContent] = useState("Select some text from above and add new comment!")
+  const [inputContent, setInputContent] = useState("Select some text from above and add new comment! Or play around with two comments that I've already made.")
 
   const addComment = () => {
     if (!inputContent) return
