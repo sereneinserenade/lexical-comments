@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Button, FormElement, Text, Textarea } from '@nextui-org/react'
+import { Button, Container, FormElement, Text, Textarea } from '@nextui-org/react'
 import { v4 as uuidv4 } from 'uuid'
 import { FiMessageCircle } from 'react-icons/fi'
 
@@ -36,7 +36,7 @@ function onChange(editorState: EditorState) {
     // const selection = $getSelection();
 
     // console.log(root, selection, JSON.stringify(editorState));
-    // console.log(JSON.stringify(editorState));
+    console.log(JSON.stringify(editorState));
   });
 }
 
@@ -164,7 +164,7 @@ const CommentStatePlugin: React.FC = () => {
 
   return (
     <section className='toolbar flex items-center gap-1rem'>
-      <Text color={isComment ? 'primary' : 'error'} b css={{ fontSize: '1.2rem'}}>
+      <Text color={isComment ? 'primary' : 'error'} b css={{ fontSize: '1.2rem' }}>
         {isComment ? "It's Inside CommentNode 💬 ✅" : "Not Inside CommentNode ❌"}
       </Text>
     </section>
@@ -249,6 +249,35 @@ function Editor({ className }: EditorProps) {
         <AddCommentPlugin />
 
       </LexicalComposer>
+
+      <section style={{ marginTop: '2rem' }} className="flex flex-col gap-1rem">
+        <Text h3 css={{ textGradient: "45deg, $purple500 -20%, $pink500 100%" }} >
+          If you like/love what I'm doing, consider 🌟ing the repository, I and the Open Source Community appreciate it ❤️.
+        </Text>
+
+        <div>
+          <h3>
+            Made possible thanks these techs.
+          </h3>
+
+          <code>
+            {
+              `"@lexical/react": "^0.2.1",
+"@nextui-org/react": "^1.0.8-beta.5",
+"lexical": "^0.2.1",
+"react": "^18.0.0",
+"react-dom": "^18.0.0",
+"react-icons": "^4.3.1",
+"recoil": "^0.7.2",
+"sass": "^1.50.0",
+"uuid": "^8.3.2"
+
+"typescript": "^4.6.3",
+"vite": "^2.9.2"`
+            }
+          </code>
+        </div>
+      </section>
     </section>
   );
 }
