@@ -18,7 +18,7 @@ https://user-images.githubusercontent.com/45892659/163717603-b98c4c29-6e53-499b-
 
 The real implementation of CommentNode for Lexical is in [comment.ts](src/lexical-nodes/comment.ts), you can copy-paste that file in your project. Rest is just a custom implementation of using CommentNode and storing comments in Recoil state on update and updating comments via commands provided in [comment.ts](src/lexical-nodes/comment.ts). 
 
-If you have any questions/suggestions about the implementation, [please open an issue](https://github.com/sereneinserenade/lexical-comments/issues) or [create a Pull Request](https://github.com/sereneinserenade/lexical-comments/pulls).
+If you have any questions/suggestions about the implementation, [open an issue](https://github.com/sereneinserenade/lexical-comments/issues) or [create a Pull Request](https://github.com/sereneinserenade/lexical-comments/pulls).
 
 <img src="https://user-images.githubusercontent.com/45892659/163718058-5de37a96-84ff-4562-9551-769655b62eaf.gif" width="200" />
 
