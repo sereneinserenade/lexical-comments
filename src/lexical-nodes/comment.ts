@@ -162,7 +162,7 @@ function setComment(commentInstance: CommentInstance | null) {
 
   const sel = $getSelection();
 
-  if (sel !== null) {
+  if (sel !== null && sel.getTextContent()) {
     const nodes = sel.extract();
     if (commentInstance === null) {
       // Remove CommentNodes

@@ -169,7 +169,7 @@ const CommentStatePlugin: React.FC = () => {
 
   return (
     <section className='toolbar flex items-center gap-1rem'>
-      {isComment ? "Inside CommentNode 💬" : "Not Inside CommentNode ❌"}
+      {isComment ? "It's Inside CommentNode 💬✅" : "Not Inside CommentNode ❌"}
     </section>
   )
 }
@@ -177,7 +177,7 @@ const CommentStatePlugin: React.FC = () => {
 const AddCommentPlugin: React.FC = () => {
   const [editor] = useLexicalComposerContext()
 
-  const [inputContent, setInputContent] = useState("")
+  const [inputContent, setInputContent] = useState("Select some text from above and add new comment!")
 
   const addComment = () => {
     if (!inputContent) return
@@ -207,17 +207,17 @@ const AddCommentPlugin: React.FC = () => {
   const onKeyboardEvent = (event: React.KeyboardEvent<FormElement>) => event.code === 'Enter' && event.metaKey && addComment()
 
   return (
-    <section className='toolbar flex flex-col gap-1rem'>
+    <section className='toolbar'>
       <Textarea
         value={inputContent}
         onInput={e => setInputContent((e.target as HTMLTextAreaElement).value)}
         onKeyDown={(e) => onKeyboardEvent(e)}
         autoFocus={true}
         bordered
-        fullWidth
+        width='50ch'
       />
 
-      <Button auto css={{ 'mt': '1rem' }} onClick={addComment}> Add Comment (⌘/Ctrl + ↵) </Button>
+      <Button auto onClick={addComment} css={{marginTop: '2ch'}}> Add Comment (⌘/Ctrl + ↵) </Button>
     </section>
   )
 }
