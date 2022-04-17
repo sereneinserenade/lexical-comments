@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Button, FormElement, Textarea } from '@nextui-org/react'
+import { Button, FormElement, Link, Textarea } from '@nextui-org/react'
 import { useRecoilState, useRecoilValue } from 'recoil';
-import { format } from 'date-fns'
-
 
 import { Editor } from '../components'
 import { activeCommentState, allCommentInstancesState, lastUpdatedCommentInstanceState } from '../store/commentStore';
@@ -32,7 +30,7 @@ export const Home: React.FC<Props> = () => {
 
     const activeComment: CommentInstance = JSON.parse(JSON.stringify(activeCommentInstance))
 
-    activeComment.comments = [...activeComment.comments, newComment]
+    activeComment.comments.push(JSON.parse(JSON.stringify(newComment)))
 
     setActiveCommentInstance(activeComment)
 
@@ -52,16 +50,14 @@ export const Home: React.FC<Props> = () => {
                 key={instance.uuid}
                 className={`comment-instance flex flex-col gap-1rem ${instance.uuid === activeCommentInstance?.uuid && 'active'}`}
               >
-                { instance.textContent && <h4>"{instance.textContent}"</h4> }
+                {instance.textContent && <h4>"{instance.textContent}"</h4>}
 
                 {
                   instance.comments?.map((comment, i) => {
                     return (
                       <div key={`${instance.uuid}_${i}`}>
-                        <span>
-                          {/* <b>{comment.userName}</b> <span className='font-s'>{format(new Date(comment.time), 'PPpp')}</span> */}
-                          <b>{comment.userName}</b> <span className='font-s'>{comment.time}</span>
-                        </span>
+                        <Link target="_blank" href={`https://github.com/${comment.userName}`}>{comment.userName}</Link> 
+                        <span className='font-s'> &nbsp;{comment.time}</span>
 
                         <div>
                           {comment.content}
@@ -78,13 +74,10 @@ export const Home: React.FC<Props> = () => {
                       value={inputContent}
                       onInput={e => setInputContent((e.target as HTMLTextAreaElement).value)}
                       onKeyDown={(e) => onKeyboardEvent(e)}
-                      css={{
-                        'mt': '1rem'
-                      }}
-                      autoFocus={true}
+                      css={{ 'mt': '1rem' }}
                     />
 
-                    <Button color="secondary" auto onClick={addComment} css={{marginTop: '2ch'}}> Add Comment (⌘/Ctrl + ↵) </Button>
+                    <Button color="secondary" auto onClick={addComment} css={{ marginTop: '2ch' }}> Add Comment (⌘/Ctrl + ↵) </Button>
                   </section>
                 }
               </article>

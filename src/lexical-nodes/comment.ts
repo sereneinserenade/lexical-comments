@@ -14,7 +14,7 @@ import {
   $setSelection
 } from 'lexical'
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext'
-import { addClassNamesToElement } from '@lexical/utils'
+import { addClassNamesToElement, mergeRegister } from '@lexical/utils'
 import { useEffect } from 'react'
 
 export interface Comment {
@@ -150,19 +150,25 @@ function $isCommentNode(node: LexicalNode): boolean {
   return node instanceof CommentNode;
 }
 
+const UPDATE_COMMENT_COMMAND: LexicalCommand<CommentInstance | null> = createCommand();
+
 const SET_COMMENT_COMMAND: LexicalCommand<CommentInstance | null> = createCommand();
 
 const EditorPriority: CommandListenerEditorPriority = 0;
 
 
-function setComment(commentInstance: CommentInstance | null) {
+function setCommentInstance(commentInstance: CommentInstance | null) {
   const selection = $getSelection();
 
   if (selection !== null) $setSelection(selection)
 
   const sel = $getSelection();
 
-  if (sel !== null && sel.getTextContent()) {
+  // IT should look like this
+  // TODO: figure out what could be solution of the problem that occur when sel.getTextContent() is included
+  // if (sel !== null && sel.getTextContent()) {
+
+  if (sel !== null) {
     const nodes = sel.extract();
     if (commentInstance === null) {
       // Remove CommentNodes
@@ -246,6 +252,35 @@ function setComment(commentInstance: CommentInstance | null) {
   }
 }
 
+function updateCommentInstance(commentInstance: CommentInstance | null) {
+  // const [editor] = useLexicalComposerContext()
+
+  if (!commentInstance) return
+  
+  const selection = $getSelection();
+
+  if (selection !== null) $setSelection(selection)
+
+  const sel = $getSelection()
+
+  if (sel !== null) {
+    const nodes = sel.extract()
+
+    for (const node of nodes) {
+      const parent = node.getParent()
+
+      let commentNode: CommentNode | undefined = undefined;
+
+      if (parent && $isCommentNode(parent)) commentNode = parent as CommentNode
+      else if (node && $isCommentNode(node)) commentNode = node as CommentNode
+
+      const foundNodeWithSameUuid = commentNode?.__commentInstance.uuid === commentInstance.uuid || false
+
+      if (foundNodeWithSameUuid) commentNode?.setComment(commentInstance)
+    }
+  }
+}
+
 export default function CommentPlugin(): null {
   const [editor] = useLexicalComposerContext();
 
@@ -256,14 +291,24 @@ export default function CommentPlugin(): null {
   }, [editor]);
 
   useEffect(() => {
-    return editor.registerCommand(
-      SET_COMMENT_COMMAND,
-      (payload: CommentInstance) => {
-        setComment(payload);
-        return true;
-      },
-      EditorPriority,
-    );
+    return mergeRegister(
+      editor.registerCommand(
+        SET_COMMENT_COMMAND,
+        (payload: CommentInstance) => {
+          setCommentInstance(payload);
+          return true;
+        },
+        EditorPriority,
+      ),
+      editor.registerCommand(
+        UPDATE_COMMENT_COMMAND,
+        (payload: CommentInstance) => {
+          updateCommentInstance(payload);
+          return true;
+        },
+        EditorPriority,
+      ),
+    )
   }, [editor]);
 
   return null;
@@ -276,4 +321,5 @@ export {
   $isCommentNode,
 
   SET_COMMENT_COMMAND,
+  UPDATE_COMMENT_COMMAND,
 }

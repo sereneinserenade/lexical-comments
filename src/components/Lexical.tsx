@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Button, FormElement, Textarea } from '@nextui-org/react'
+import { Button, FormElement, Text, Textarea } from '@nextui-org/react'
 import { v4 as uuidv4 } from 'uuid'
 import { FiMessageCircle } from 'react-icons/fi'
 
@@ -15,7 +15,7 @@ import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext
 
 import './styles/Lexical.scss'
 import { CommentInstance, CommentNode, SET_COMMENT_COMMAND } from '../lexical-nodes';
-import CommentPlugin, { $isCommentNode } from '../lexical-nodes/comment';
+import CommentPlugin, { $isCommentNode, UPDATE_COMMENT_COMMAND } from '../lexical-nodes/comment';
 import { initialEditorState } from '../mocks'
 import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
 import { activeCommentState, allCommentInstancesState, lastUpdatedCommentInstanceState } from '../store/commentStore';
@@ -97,63 +97,58 @@ const CommentStatePlugin: React.FC = () => {
   useEffect(() => {
     if (!activeCommentInstance) return
 
-    editor.update(() => {
-      const copyActiveCommentInstance: CommentInstance = JSON.parse(JSON.stringify(activeCommentInstance))
+    const copyActiveCommentInstance: CommentInstance = JSON.parse(JSON.stringify(activeCommentInstance))
 
-      const state = editor.getEditorState()
+    const state = editor.getEditorState()
 
-      state.read(() => {
-        state._nodeMap.forEach((node) => {
-          if ($isCommentNode(node) && (node as CommentNode).__commentInstance.uuid === activeCommentInstance.uuid) {
-            const [prevCommentInstance, thisCommentInstance] = [JSON.stringify((node as CommentNode).__commentInstance), JSON.stringify(activeCommentInstance)]
-            if (prevCommentInstance !== thisCommentInstance) editor.dispatchCommand(SET_COMMENT_COMMAND, copyActiveCommentInstance)
-          }
-        })
+    state.read(() => {
+      state._nodeMap.forEach((node) => {
+        if ($isCommentNode(node) && (node as CommentNode).__commentInstance.uuid === activeCommentInstance.uuid) {
+          const [prevCommentInstance, thisCommentInstance] = [JSON.stringify((node as CommentNode).__commentInstance), JSON.stringify(activeCommentInstance)]
+          if (prevCommentInstance !== thisCommentInstance) editor.dispatchCommand(UPDATE_COMMENT_COMMAND, copyActiveCommentInstance)
+        }
       })
-
     })
   }, [activeCommentInstance])
 
   const setActiveStates = useCallback(() => {
-    editor.update(() => {
-      const state = editor.getEditorState()
+    const state = editor.getEditorState()
 
-      state.read(() => {
-        const commentInstances: CommentInstance[] = []
+    state.read(() => {
+      const commentInstances: CommentInstance[] = []
 
-        state._nodeMap.forEach((node, key, map) => {
-          node.__type === CommentNode.getType()
+      state._nodeMap.forEach((node, key, map) => {
+        node.__type === CommentNode.getType()
 
-          const commentInstance = (node as CommentNode).__commentInstance || {}
+        const commentInstance = (node as CommentNode).__commentInstance || {}
 
-          if (commentInstance.uuid) commentInstances.push(commentInstance)
-        })
-
-        setAllCommentInstances(commentInstances)
+        if (commentInstance.uuid) commentInstances.push(commentInstance)
       })
 
-      const selection = $getSelection()
-
-      if ($isRangeSelection(selection)) {
-        const node = getSelectedNode(selection as RangeSelection)
-
-        const parent = node.getParent()
-
-        let commentNode: CommentNode | undefined
-
-        if ($isCommentNode(node)) commentNode = node as CommentNode
-        else if (parent && $isCommentNode(parent)) commentNode = parent as CommentNode
-
-        if (commentNode) {
-          setIsComment(true)
-          const activeCommentInstance: CommentInstance = JSON.parse(JSON.stringify(commentNode.__commentInstance))
-          setActiveCommentInstance(activeCommentInstance)
-        } else {
-          setIsComment(false)
-          setActiveCommentInstance(undefined)
-        }
-      }
+      setAllCommentInstances(commentInstances)
     })
+
+    const selection = $getSelection()
+
+    if ($isRangeSelection(selection)) {
+      const node = getSelectedNode(selection as RangeSelection)
+
+      const parent = node.getParent()
+
+      let commentNode: CommentNode | undefined
+
+      if ($isCommentNode(node)) commentNode = node as CommentNode
+      else if (parent && $isCommentNode(parent)) commentNode = parent as CommentNode
+
+      if (commentNode) {
+        setIsComment(true)
+        const activeCommentInstance: CommentInstance = JSON.parse(JSON.stringify(commentNode.__commentInstance))
+        setActiveCommentInstance(activeCommentInstance)
+      } else {
+        setIsComment(false)
+        setActiveCommentInstance(undefined)
+      }
+    }
   }, [editor])
 
   useEffect(() => {
@@ -169,7 +164,9 @@ const CommentStatePlugin: React.FC = () => {
 
   return (
     <section className='toolbar flex items-center gap-1rem'>
-      {isComment ? "It's Inside CommentNode 💬✅" : "Not Inside CommentNode ❌"}
+      <Text color={isComment ? 'primary' : 'error'} b css={{ fontSize: '1.2rem'}}>
+        {isComment ? "It's Inside CommentNode 💬 ✅" : "Not Inside CommentNode ❌"}
+      </Text>
     </section>
   )
 }
@@ -177,7 +174,7 @@ const CommentStatePlugin: React.FC = () => {
 const AddCommentPlugin: React.FC = () => {
   const [editor] = useLexicalComposerContext()
 
-  const [inputContent, setInputContent] = useState("Select some text from above and add new comment! Or play around with two comments that I've already made.")
+  const [inputContent, setInputContent] = useState("I love lexical!!!")
 
   const addComment = () => {
     if (!inputContent) return
@@ -217,7 +214,7 @@ const AddCommentPlugin: React.FC = () => {
         animated={true}
       />
 
-      <Button color="secondary" auto onClick={addComment} css={{marginTop: '2ch'}}> Add New Comment (⌘/Ctrl + ↵) </Button>
+      <Button color="secondary" auto onClick={addComment} css={{ marginTop: '2ch' }}> Add New Comment (⌘/Ctrl + ↵) </Button>
     </section>
   )
 }

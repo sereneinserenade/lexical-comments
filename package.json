@@ -10,7 +10,6 @@
   "dependencies": {
     "@lexical/react": "^0.2.1",
     "@nextui-org/react": "^1.0.8-beta.5",
-    "date-fns": "^2.28.0",
     "lexical": "^0.2.1",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",

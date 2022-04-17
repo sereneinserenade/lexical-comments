@@ -8,7 +8,7 @@ import { Home } from './views'
 import './App.css'
 
 function App({ }) {
-  const [isDark, setIsDark] = useState<boolean>(true)
+  const [isDark, setIsDark] = useState<boolean>(false)
 
   const darkTheme = createTheme({ type: 'dark' })
 
