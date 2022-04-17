@@ -252,7 +252,7 @@ function Editor({ className }: EditorProps) {
 
       <section style={{ marginTop: '2rem' }} className="flex flex-col gap-1rem">
         <Text h3 css={{ textGradient: "45deg, $purple500 -20%, $pink500 100%" }} >
-          If you like/love what I'm doing, consider 🌟ing the repository, I and the Open Source Community appreciate it ❤️.
+          If you like/love what I'm doing, consider 🌟ing the repository. <br/> I and the Open Source Community appreciate it very much ❤️.
         </Text>
 
         <div>
