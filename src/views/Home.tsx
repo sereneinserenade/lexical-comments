@@ -23,14 +23,14 @@ export const Home: React.FC<Props> = () => {
 
   const addComment = () => {
     if (!inputContent) return
-    
+
     const newComment: Comment = {
       content: inputContent,
       time: 'just now',
       userName: 'sereneinserenade',
     }
 
-    const activeComment: CommentInstance = JSON.parse(JSON.stringify(activeCommentInstance)) 
+    const activeComment: CommentInstance = JSON.parse(JSON.stringify(activeCommentInstance))
 
     activeComment.comments = [...activeComment.comments, newComment]
 
@@ -52,6 +52,8 @@ export const Home: React.FC<Props> = () => {
                 key={instance.uuid}
                 className={`comment-instance flex flex-col gap-1rem ${instance.uuid === activeCommentInstance?.uuid && 'active'}`}
               >
+                { instance.textContent && <h4>"{instance.textContent}"</h4> }
+
                 {
                   instance.comments?.map((comment, i) => {
                     return (

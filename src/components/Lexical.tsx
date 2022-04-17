@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Button } from '@nextui-org/react'
+import { Button, FormElement, Textarea } from '@nextui-org/react'
 import { v4 as uuidv4 } from 'uuid'
 import { FiMessageCircle } from 'react-icons/fi'
 
@@ -83,16 +83,16 @@ function getSelectedNode(selection: RangeSelection): TextNode | ElementNode {
 }
 
 
-const DummyCommentPlugin: React.FC = () => {
+const CommentStatePlugin: React.FC = () => {
   const [editor] = useLexicalComposerContext()
 
   const [isComment, setIsComment] = useState<boolean>(false)
 
   const [activeCommentInstance, setActiveCommentInstance] = useRecoilState(activeCommentState)
 
-  const [allCommentInstances, setAllCommentInstances] = useRecoilState(allCommentInstancesState)
+  const setAllCommentInstances = useSetRecoilState(allCommentInstancesState)
 
-  const [updatedUuidOnce, setUpdateUuidOnce] = useState(false)
+  const [inputContent, setInputContent] = useState("")
 
   useEffect(() => {
     if (!activeCommentInstance) return
@@ -146,7 +146,7 @@ const DummyCommentPlugin: React.FC = () => {
 
         if (commentNode) {
           setIsComment(true)
-          const activeCommentInstance: CommentInstance = JSON.parse(JSON.stringify(commentNode.__commentInstance)) 
+          const activeCommentInstance: CommentInstance = JSON.parse(JSON.stringify(commentNode.__commentInstance))
           setActiveCommentInstance(activeCommentInstance)
         } else {
           setIsComment(false)
@@ -167,31 +167,61 @@ const DummyCommentPlugin: React.FC = () => {
     )
   })
 
-  const setDummyComment = () => {
-    const dummyCommentInstance: CommentInstance = {
-      uuid: uuidv4(),
-      comments: [
-        {
-          content: "First Comment",
-          time: 'just now',
-          userName: 'sereneinserenade'
-        }
-      ]
-    }
-
-    editor.dispatchCommand(SET_COMMENT_COMMAND, dummyCommentInstance)
-  }
-
   return (
     <section className='toolbar flex items-center gap-1rem'>
-      <Button auto color="gradient" rounded bordered={!isComment} onClick={setDummyComment}>
-        <FiMessageCircle />
-      </Button>
-
       {isComment ? "Inside CommentNode 💬" : "Not Inside CommentNode ❌"}
     </section>
   )
 }
+
+const AddCommentPlugin: React.FC = () => {
+  const [editor] = useLexicalComposerContext()
+
+  const [inputContent, setInputContent] = useState("")
+
+  const addComment = () => {
+    if (!inputContent) return
+
+    editor.update(() => {
+      const sel = $getSelection()
+      const textContent = sel?.getTextContent() || ""
+
+      const dummyCommentInstance: CommentInstance = {
+        uuid: uuidv4(),
+        textContent,
+        comments: [
+          {
+            content: inputContent,
+            time: 'just now',
+            userName: 'sereneinserenade'
+          }
+        ]
+      }
+
+      editor.dispatchCommand(SET_COMMENT_COMMAND, dummyCommentInstance)
+
+      setInputContent("")
+    })
+  }
+
+  const onKeyboardEvent = (event: React.KeyboardEvent<FormElement>) => event.code === 'Enter' && event.metaKey && addComment()
+
+  return (
+    <section className='toolbar flex flex-col gap-1rem'>
+      <Textarea
+        value={inputContent}
+        onInput={e => setInputContent((e.target as HTMLTextAreaElement).value)}
+        onKeyDown={(e) => onKeyboardEvent(e)}
+        autoFocus={true}
+        bordered
+        fullWidth
+      />
+
+      <Button auto css={{ 'mt': '1rem' }} onClick={addComment}> Add Comment (⌘/Ctrl + ↵) </Button>
+    </section>
+  )
+}
+
 
 function Editor({ className }: EditorProps) {
   const initialConfig = {
@@ -203,7 +233,7 @@ function Editor({ className }: EditorProps) {
     <section className={(className || "") + " lexical-container"}>
       <LexicalComposer initialConfig={{ ...initialConfig, nodes: [CommentNode] }}>
 
-        <DummyCommentPlugin />
+        <CommentStatePlugin />
 
         <LexicalPlainTextPlugin
           contentEditable={<LexicalContentEditable spellcheck={false} />}
@@ -218,6 +248,8 @@ function Editor({ className }: EditorProps) {
         <MyCustomAutoFocusPlugin />
 
         <CommentPlugin />
+
+        <AddCommentPlugin />
 
       </LexicalComposer>
     </section>

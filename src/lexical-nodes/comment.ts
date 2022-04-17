@@ -25,6 +25,7 @@ export interface Comment {
 
 export interface CommentInstance {
   uuid: string
+  textContent: string
   comments: Comment[]
 }
 
