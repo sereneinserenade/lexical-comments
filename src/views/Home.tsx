@@ -84,7 +84,7 @@ export const Home: React.FC<Props> = () => {
                       autoFocus={true}
                     />
 
-                    <Button auto css={{ 'mt': '1rem' }} onClick={addComment}> Add Comment (⌘/Ctrl + ↵) </Button>
+                    <Button color="secondary" auto onClick={addComment} css={{marginTop: '2ch'}}> Add Comment (⌘/Ctrl + ↵) </Button>
                   </section>
                 }
               </article>

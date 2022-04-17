@@ -213,11 +213,11 @@ const AddCommentPlugin: React.FC = () => {
         onInput={e => setInputContent((e.target as HTMLTextAreaElement).value)}
         onKeyDown={(e) => onKeyboardEvent(e)}
         autoFocus={true}
-        bordered
         width='50ch'
+        animated={true}
       />
 
-      <Button auto onClick={addComment} css={{marginTop: '2ch'}}> Add Comment (⌘/Ctrl + ↵) </Button>
+      <Button color="secondary" auto onClick={addComment} css={{marginTop: '2ch'}}> Add New Comment (⌘/Ctrl + ↵) </Button>
     </section>
   )
 }

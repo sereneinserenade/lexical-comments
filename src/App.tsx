@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { NextUIProvider, createTheme, Tooltip } from '@nextui-org/react';
+import { NextUIProvider, createTheme, Tooltip, Switch } from '@nextui-org/react';
 import { FiSun, FiMoon } from 'react-icons/fi'
 import { RecoilRoot } from 'recoil'
 
@@ -8,7 +8,7 @@ import { Home } from './views'
 import './App.css'
 
 function App({ }) {
-  const [isDark, setTheme] = useState<boolean>(true)
+  const [isDark, setIsDark] = useState<boolean>(true)
 
   const darkTheme = createTheme({ type: 'dark' })
 
@@ -20,13 +20,11 @@ function App({ }) {
         <Home />
 
         <section
-          onClick={() => setTheme(!isDark)}
-          className='theme-switcher-section'
+          onClick={() => setIsDark(!isDark)}
+          className='theme-switcher-section flex items-center gap-1rem'
           aria-label='theme-switcher-section'
         >
-          <Tooltip content={isDark ? 'Light Theme' : 'Dark Theme'} placement="left">
-            {isDark ? <FiSun /> : <FiMoon />}
-          </Tooltip>
+          <Switch checked={isDark} onChange={(e) => setIsDark(e.target.checked)} iconOff={<FiSun />} iconOn={<FiMoon />}></Switch>
         </section>
       </RecoilRoot>
     </NextUIProvider>
