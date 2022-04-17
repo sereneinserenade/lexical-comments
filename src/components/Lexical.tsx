@@ -105,13 +105,6 @@ const DummyCommentPlugin: React.FC = () => {
       state.read(() => {
         state._nodeMap.forEach((node) => {
           if ($isCommentNode(node) && (node as CommentNode).__commentInstance.uuid === activeCommentInstance.uuid) {
-            // const selection = new RangeSelection(node.)
-
-            // $setSelection(node)
-
-            // (node as CommentNode).setComment(activeCommentInstance)
-
-            debugger
             const [prevCommentInstance, thisCommentInstance] = [JSON.stringify((node as CommentNode).__commentInstance), JSON.stringify(activeCommentInstance)]
             if (prevCommentInstance !== thisCommentInstance) editor.dispatchCommand(SET_COMMENT_COMMAND, copyActiveCommentInstance)
           }
@@ -180,7 +173,7 @@ const DummyCommentPlugin: React.FC = () => {
       comments: [
         {
           content: "First Comment",
-          time: `${Date.now()}`,
+          time: 'just now',
           userName: 'sereneinserenade'
         }
       ]

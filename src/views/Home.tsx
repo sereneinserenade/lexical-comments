@@ -24,7 +24,7 @@ export const Home: React.FC<Props> = () => {
   const addComment = () => {
     const newComment: Comment = {
       content: inputContent,
-      time: `${Date.now()}`,
+      time: 'just now',
       userName: 'sereneinserenade',
     }
 
@@ -52,7 +52,7 @@ export const Home: React.FC<Props> = () => {
                       <div key={`${instance.uuid}_${i}`}>
                         <span>
                           {/* <b>{comment.userName}</b> <span className='font-s'>{format(new Date(comment.time), 'PPpp')}</span> */}
-                          <b>{comment.userName}</b> <span className='font-s'>{comment.time.toString()}</span>
+                          <b>{comment.userName}</b> <span className='font-s'>{comment.time}</span>
                         </span>
 
                         <div>
