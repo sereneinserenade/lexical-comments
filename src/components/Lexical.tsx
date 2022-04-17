@@ -36,7 +36,7 @@ function onChange(editorState: EditorState) {
     // const selection = $getSelection();
 
     // console.log(root, selection, JSON.stringify(editorState));
-    console.log(JSON.stringify(editorState));
+    // console.log(JSON.stringify(editorState));
   });
 }
 
