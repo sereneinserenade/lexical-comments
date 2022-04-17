@@ -17,11 +17,9 @@ interface Props {
 export const Home: React.FC<Props> = () => {
   const [allCommentInstances, setAllCommentInstances] = useRecoilState(allCommentInstancesState)
 
-  const activeCommentInstanceUuid = useRecoilValue(activeCommentState)
+  const [activeCommentInstance, setActiveCommentInstance] = useRecoilState(activeCommentState)
 
   const [inputContent, setInputContent] = useState("")
-
-  const [lastUpdatedCommentInstance, setLastUpdatedCommentInstance] = useRecoilState(lastUpdatedCommentInstanceState)
 
   const addComment = () => {
     const newComment: Comment = {
@@ -30,19 +28,11 @@ export const Home: React.FC<Props> = () => {
       userName: 'sereneinserenade',
     }
 
-    const activeCommentIndex = allCommentInstances.findIndex((i) => i.uuid === activeCommentInstanceUuid)
-    const activeComment: CommentInstance = JSON.parse(JSON.stringify(allCommentInstances[activeCommentIndex])) 
-
-    debugger
+    const activeComment: CommentInstance = JSON.parse(JSON.stringify(activeCommentInstance)) 
 
     activeComment.comments = [...activeComment.comments, newComment]
 
-    const copyAllCommentInstances: CommentInstance[] = JSON.parse(JSON.stringify(allCommentInstances)) 
-
-    copyAllCommentInstances[activeCommentIndex] = activeComment
-
-    setAllCommentInstances(copyAllCommentInstances)
-    setLastUpdatedCommentInstance(activeComment.uuid)
+    setActiveCommentInstance(activeComment)
   }
 
   return (
@@ -54,7 +44,7 @@ export const Home: React.FC<Props> = () => {
             return (
               instance && <article
                 key={instance.uuid}
-                className={`comment-instance ${instance.uuid === activeCommentInstanceUuid && 'active'}`}
+                className={`comment-instance ${instance.uuid === activeCommentInstance?.uuid && 'active'}`}
               >
                 {
                   instance.comments?.map((comment, i) => {
@@ -74,7 +64,7 @@ export const Home: React.FC<Props> = () => {
                 }
 
                 {
-                  instance.uuid === activeCommentInstanceUuid && <section className='' aria-label='input-section'>
+                  instance.uuid === activeCommentInstance?.uuid && <section className='' aria-label='input-section'>
                     <Textarea
                       fullWidth
                       value={inputContent}

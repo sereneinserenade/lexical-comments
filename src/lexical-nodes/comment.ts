@@ -28,6 +28,15 @@ export interface CommentInstance {
   comments: Comment[]
 }
 
+const selectElementText = (el: EventTarget) => {
+  const range = document.createRange()
+  range.selectNode(el as HTMLSpanElement)
+
+  const sel = window.getSelection()
+  sel?.removeAllRanges()
+  sel?.addRange(range)
+}
+
 class CommentNode extends ElementNode {
   __commentInstance: CommentInstance;
 
@@ -48,6 +57,8 @@ class CommentNode extends ElementNode {
     const element = document.createElement('span');
 
     element.setAttribute('data-comment-instance', JSON.stringify(this.__commentInstance))
+
+    // element.addEventListener('click', (e) => e.target && selectElementText(e.target))
 
     addClassNamesToElement(element, config.theme.comment as string);
 

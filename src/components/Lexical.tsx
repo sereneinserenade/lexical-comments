@@ -3,7 +3,7 @@ import { Button } from '@nextui-org/react'
 import { v4 as uuidv4 } from 'uuid'
 import { FiMessageCircle } from 'react-icons/fi'
 
-import { $getRoot, $getSelection, $isRangeSelection, CommandListenerLowPriority, EditorState, SELECTION_CHANGE_COMMAND, RangeSelection, TextNode, ElementNode } from 'lexical';
+import { $getRoot, $getSelection, $isRangeSelection, CommandListenerLowPriority, EditorState, SELECTION_CHANGE_COMMAND, RangeSelection, TextNode, ElementNode, $setSelection } from 'lexical';
 import { $isAtNodeEnd } from "@lexical/selection"
 
 import LexicalComposer from '@lexical/react/LexicalComposer';
@@ -32,11 +32,11 @@ const theme = {
 function onChange(editorState: EditorState) {
   editorState.read(() => {
     // Read the contents of the EditorState here.
-    const root = $getRoot();
-    const selection = $getSelection();
+    // const root = $getRoot();
+    // const selection = $getSelection();
 
     // console.log(root, selection, JSON.stringify(editorState));
-    // console.log(JSON.stringify(editorState));
+    console.log(JSON.stringify(editorState));
   });
 }
 
@@ -88,40 +88,38 @@ const DummyCommentPlugin: React.FC = () => {
 
   const [isComment, setIsComment] = useState<boolean>(false)
 
-  const setActiveCommentInstanceUuid = useSetRecoilState(activeCommentState)
+  const [activeCommentInstance, setActiveCommentInstance] = useRecoilState(activeCommentState)
 
   const [allCommentInstances, setAllCommentInstances] = useRecoilState(allCommentInstancesState)
-
-  const [lastUpdatedCommentInstanceUuid, setLastUpdatedCommentInstanceUuid] = useRecoilState(lastUpdatedCommentInstanceState)
 
   const [updatedUuidOnce, setUpdateUuidOnce] = useState(false)
 
   useEffect(() => {
-    if (lastUpdatedCommentInstanceUuid || !updatedUuidOnce) {
-      setUpdateUuidOnce(true)
-      const lastUpdatedCommentInstance = allCommentInstances.find((i) => i.uuid === lastUpdatedCommentInstanceUuid)
+    if (!activeCommentInstance) return
 
-      if (lastUpdatedCommentInstance) {
-        editor.update(() => {
-          const state = editor.getEditorState()
+    editor.update(() => {
+      const copyActiveCommentInstance: CommentInstance = JSON.parse(JSON.stringify(activeCommentInstance))
 
-          state.read(() => {
-            state._nodeMap.forEach((node) => {
-              node.__type === CommentNode.getType()
+      const state = editor.getEditorState()
 
-              const commentInstance = (node as CommentNode).__commentInstance || {}
+      state.read(() => {
+        state._nodeMap.forEach((node) => {
+          if ($isCommentNode(node) && (node as CommentNode).__commentInstance.uuid === activeCommentInstance.uuid) {
+            // const selection = new RangeSelection(node.)
 
-              if (commentInstance.uuid === lastUpdatedCommentInstanceUuid) {
-                (node as CommentNode).setComment(lastUpdatedCommentInstance)
-              }
-            })
-          })
+            // $setSelection(node)
+
+            // (node as CommentNode).setComment(activeCommentInstance)
+
+            debugger
+            const [prevCommentInstance, thisCommentInstance] = [JSON.stringify((node as CommentNode).__commentInstance), JSON.stringify(activeCommentInstance)]
+            if (prevCommentInstance !== thisCommentInstance) editor.dispatchCommand(SET_COMMENT_COMMAND, copyActiveCommentInstance)
+          }
         })
-      } else {
-        
-      }
-    }
-  }, [lastUpdatedCommentInstanceUuid])
+      })
+
+    })
+  }, [activeCommentInstance])
 
   const setActiveStates = useCallback(() => {
     editor.update(() => {
@@ -155,11 +153,11 @@ const DummyCommentPlugin: React.FC = () => {
 
         if (commentNode) {
           setIsComment(true)
-          const activeCommentInstanceUuid = commentNode.__commentInstance.uuid
-          setActiveCommentInstanceUuid(activeCommentInstanceUuid)
+          const activeCommentInstance: CommentInstance = JSON.parse(JSON.stringify(commentNode.__commentInstance)) 
+          setActiveCommentInstance(activeCommentInstance)
         } else {
           setIsComment(false)
-          setActiveCommentInstanceUuid("")
+          setActiveCommentInstance(undefined)
         }
       }
     })

@@ -7,7 +7,7 @@ export const allCommentInstancesState = atom<CommentInstance[]>({
   default: []
 })
 
-export const activeCommentState = atom<string | undefined>({
+export const activeCommentState = atom<CommentInstance | undefined>({
   key: 'activeCommentState',
   default: undefined
 })
