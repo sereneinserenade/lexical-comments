@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Textarea } from '@nextui-org/react'
+import { Button, FormElement, Textarea } from '@nextui-org/react'
 import { useRecoilState, useRecoilValue } from 'recoil';
 import { format } from 'date-fns'
 
@@ -22,6 +22,8 @@ export const Home: React.FC<Props> = () => {
   const [inputContent, setInputContent] = useState("")
 
   const addComment = () => {
+    if (!inputContent) return
+    
     const newComment: Comment = {
       content: inputContent,
       time: 'just now',
@@ -33,7 +35,11 @@ export const Home: React.FC<Props> = () => {
     activeComment.comments = [...activeComment.comments, newComment]
 
     setActiveCommentInstance(activeComment)
+
+    setInputContent("")
   }
+
+  const onKeyboardEvent = (event: React.KeyboardEvent<FormElement>) => event.code === 'Enter' && event.metaKey && addComment()
 
   return (
     <section className='home container' aria-label='home'>
@@ -44,7 +50,7 @@ export const Home: React.FC<Props> = () => {
             return (
               instance && <article
                 key={instance.uuid}
-                className={`comment-instance ${instance.uuid === activeCommentInstance?.uuid && 'active'}`}
+                className={`comment-instance flex flex-col gap-1rem ${instance.uuid === activeCommentInstance?.uuid && 'active'}`}
               >
                 {
                   instance.comments?.map((comment, i) => {
@@ -69,12 +75,14 @@ export const Home: React.FC<Props> = () => {
                       fullWidth
                       value={inputContent}
                       onInput={e => setInputContent((e.target as HTMLTextAreaElement).value)}
+                      onKeyDown={(e) => onKeyboardEvent(e)}
                       css={{
                         'mt': '1rem'
                       }}
+                      autoFocus={true}
                     />
 
-                    <Button auto css={{ 'mt': '1rem' }} onClick={addComment}> Add Comment </Button>
+                    <Button auto css={{ 'mt': '1rem' }} onClick={addComment}> Add Comment (⌘/Ctrl + ↵) </Button>
                   </section>
                 }
               </article>
