@@ -26,7 +26,7 @@ If you have any questions/suggestions about the implementation, [open an issue](
 
 Show your ❤️ by ⭐️ing this repository. Your support means a lot.
 
-Clone the repo, do something, make a PR(or not). You know what's the drill. Looking forward to your PRs, you amazing devs.
+Clone the repo, do something, make a PR(or don't). You know what's the drill. Looking forward to your PRs, you amazing devs.
 
 ## LICENCE
 
