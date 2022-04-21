@@ -210,8 +210,9 @@ const AddCommentPlugin: React.FC = () => {
         onInput={e => setInputContent((e.target as HTMLTextAreaElement).value)}
         onKeyDown={(e) => onKeyboardEvent(e)}
         autoFocus={true}
-        width='50ch'
         animated={true}
+        fullWidth
+        placeholder='Select some text and type new comment...'
       />
 
       <Button color="secondary" auto onClick={addComment} css={{ marginTop: '2ch' }}> Add New Comment (⌘/Ctrl + ↵) </Button>
@@ -252,17 +253,17 @@ function Editor({ className }: EditorProps) {
 
       <section style={{ marginTop: '2rem' }} className="flex flex-col gap-1rem">
         <Text h3 css={{ textGradient: "45deg, $purple500 -20%, $pink500 100%" }} >
-          If you like/love what I'm doing, consider 🌟ing the repository. <br/> I and the Open Source Community appreciate it very much ❤️.
+          If you like/love what I'm doing, consider 🌟ing the repository. <br /> I and the Open Source Community appreciate it very much ❤️.
         </Text>
 
         <div>
           <h3>
-            Made possible thanks these techs.
+            Made possible thank to these techs.
           </h3>
 
-          <code>
-            {
-              `"@lexical/react": "^0.2.1",
+          <pre>
+              {
+                `"@lexical/react": "^0.2.1",
 "@nextui-org/react": "^1.0.8-beta.5",
 "lexical": "^0.2.1",
 "react": "^18.0.0",
@@ -274,8 +275,8 @@ function Editor({ className }: EditorProps) {
 
 "typescript": "^4.6.3",
 "vite": "^2.9.2"`
-            }
-          </code>
+              }
+          </pre>
         </div>
       </section>
     </section>
