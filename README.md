@@ -6,7 +6,7 @@
 
 Example implementation of having Google-Docs like comments in https://lexical.dev . Main ingredient that makes this possible is [CommentNode](https://github.com/sereneinserenade/lexical-comments/blob/main/src/lexical-nodes/comment.ts#L41) which is Highly inspired by the [LinkNode](https://github.com/facebook/lexical/blob/main/packages/lexical-link/src/index.js) from Lexical.
 
-If you 👍 / ❤️ what I'm doing, **consider 🌟ing the repo**, I and the Open Source Community appreciate it ❤️.
+A ⭐️ to the repo if you 👍 / ❤️  what I'm doing would be much appreciated. If you're using this extension and making money from it, it'd be very kind of you to [:heart: Sponsor me](https://github.com/sponsors/laike9m). If you're looking for a **dev to work you on your project's Rich Text Editor** with or as **a frontend developer, [DM me on Discord/Twitter/LinkedIn](https://github.com/sereneinserenade)👨‍💻🤩**.
 
 ## Demo
 
